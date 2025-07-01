@@ -13,13 +13,6 @@ function App() {
     const storedItems = localStorage.getItem("items");
     return storedItems ? JSON.parse(storedItems) : [];
   });
-  
-  useEffect(() => {
-    const storedItems = localStorage.getItem("items");
-    if (storedItems) {
-      setItems(JSON.parse(storedItems));
-    }
-  }, []);
 
   useEffect(() => {
     localStorage.setItem("items", JSON.stringify(items));
