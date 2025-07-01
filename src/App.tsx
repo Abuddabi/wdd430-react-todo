@@ -1,15 +1,41 @@
 import { useState } from "react";
 import "./index.css";
 
+type Item = {
+  id: string;
+  text: string;
+  completed: boolean;
+};
+
 function App() {
-  const [newItem, setNewItem] = useState("");
-  const [items, setItems] = useState<string[]>([]);
+  const [newItem, setNewItem] = useState<Item | null>(null);
+  const [items, setItems] = useState<Item[]>([]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (newItem.trim() === "") return;
-    setItems((items) => [...items, newItem]);
-    setNewItem("");
+    if (newItem && newItem.text.trim() === "") return;
+    setItems((items) => [...items, newItem as Item]);
+    setNewItem(null);
+  }
+
+  function handleAddItem(text: string) {
+    if (text.trim() === "") return;
+    const item: Item = {
+      id: Date.now().toString(),
+      text,
+      completed: false,
+    };
+    setNewItem(item);
+  }
+
+  function handleDeleteItem(id: string) {
+    setItems((items) => items.filter((item) => item.id !== id));
+  }
+
+  function handleCompleteItem(id: string) {
+    setItems((items) =>
+      items.map((i) => (i.id === id ? { ...i, completed: !i.completed } : i))
+    );
   }
 
   return (
@@ -20,8 +46,8 @@ function App() {
             className="border border-gray-300 rounded-md p-2"
             type="text"
             id="item"
-            value={newItem}
-            onChange={(e) => setNewItem(e.target.value)}
+            value={newItem?.text || ""}
+            onChange={(e) => handleAddItem(e.target.value)}
           />
         </label>
         <button type="submit">Add</button>
@@ -31,10 +57,17 @@ function App() {
         {items.map((item, index) => (
           <li key={index} className="flex items-center justify-between mb-2">
             <label>
-              <input className="mr-2" type="checkbox" />
-              {item}
+              <input
+                className="mr-2"
+                type="checkbox"
+                checked={item.completed}
+                onChange={() => handleCompleteItem(item.id)}
+              />
+              {item.text}
             </label>
-            <button className="ml-4">Delete</button>
+            <button className="ml-4" onClick={() => handleDeleteItem(item.id)}>
+              Delete
+            </button>
           </li>
         ))}
       </ul>
